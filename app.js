@@ -927,6 +927,38 @@ let isLoggedIn       = _isPreview ? false : (_loggedLS || _loggedSS);
 let _regPassword = '';
 let _regName = '';
 
+// ── API layer — uses server if available, falls back to localStorage ──────────
+const API_BASE = window.location.origin.startsWith('file:') ? null : window.location.origin;
+let _apiToken = localStorage.getItem('kb_api_token') || null;
+
+async function apiCall(method, path, body) {
+  if (!API_BASE) return null;
+  try {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (_apiToken) opts.headers['Authorization'] = 'Bearer ' + _apiToken;
+    if (body) opts.body = JSON.stringify(body);
+    const r = await fetch(API_BASE + path, opts);
+    if (!r.ok) return null;
+    return await r.json();
+  } catch { return null; }
+}
+
+async function syncProgressToServer(email) {
+  if (!_apiToken) return;
+  const ud = getUD(email);
+  await apiCall('POST', '/api/progress/' + encodeURIComponent(email), ud);
+}
+
+async function loadProgressFromServer(email) {
+  if (!_apiToken) return;
+  const data = await apiCall('GET', '/api/progress/' + encodeURIComponent(email));
+  if (data && (data.xp || data.lessons?.length)) {
+    const db = getGD();
+    db[email] = data;
+    saveGD(db);
+  }
+}
+
 function getUsers() {
   try { return JSON.parse(localStorage.getItem('kb_users') || '[]'); } catch(e) { return []; }
 }
@@ -987,25 +1019,37 @@ function switchTab(tab) {
   document.getElementById('tab-login').classList.toggle('active', tab === 'login');
   document.getElementById('tab-register').classList.toggle('active', tab === 'register');
 }
-function handleLogin() {
+async function handleLogin() {
   const email = document.getElementById('login-email').value;
   const password = document.getElementById('login-password').value;
   if (!email || !password) { alert('Please fill in all fields'); return; }
-  if (!checkCredentials(email, password)) {
-    alert('Incorrect email or password'); return;
-  }
-  currentUserEmail = email;
-  currentUserName = getNameForEmail(email);
-  isLoggedIn = true;
   const remember = document.getElementById('remember-me')?.checked !== false;
+
+  // Try server first
+  const serverRes = await apiCall('POST', '/api/auth/login', { email, password });
+  if (serverRes?.token) {
+    _apiToken = serverRes.token;
+    localStorage.setItem('kb_api_token', _apiToken);
+    currentUserEmail = serverRes.email;
+    currentUserName = serverRes.name;
+  } else {
+    // Fallback: local check
+    if (!checkCredentials(email, password)) { alert('Incorrect email or password'); return; }
+    currentUserEmail = email;
+    currentUserName = getNameForEmail(email);
+  }
+
+  isLoggedIn = true;
   const store = remember ? localStorage : sessionStorage;
   store.setItem('kb_logged', 'true');
-  store.setItem('kb_email', email);
+  store.setItem('kb_email', currentUserEmail);
   store.setItem('kb_name', currentUserName);
   if (remember) {
     localStorage.setItem('kb_saved_email', email);
     localStorage.setItem('kb_saved_pw', password);
   }
+  // Load server progress (overwrites local if server has more XP)
+  await loadProgressFromServer(currentUserEmail);
   closeAuthModal();
   updateNavForLoggedIn();
   if (window._pendingAction) { window._pendingAction(); window._pendingAction = null; }
@@ -2639,6 +2683,8 @@ function addXP(amount, reason) {
   checkBadges();
   updateXPDisplay();
   progressMission('_xp', amount);
+  // Sync to server in background
+  syncProgressToServer(currentUserEmail);
 }
 
 function showXPToast(msg) {
