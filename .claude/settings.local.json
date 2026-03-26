@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \":*)",
+      "Bash(grep -n \"fullContent:\\\\`\" \"c:\\\\Users\\\\Levy_\\\\Downloads\\\\v1\\\\app.js\")",
+      "Bash(\"c:\\\\Users\\\\Levy_\\\\Downloads\\\\v1\\\\style.css\":*)",
+      "Bash(node --check \"c:\\\\Users\\\\Levy_\\\\Downloads\\\\v1\\\\app.js\")",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(echo \"exit: $?\")",
+      "Bash(sed -i 's/MoneyMind/LearnToEarn/g' \"c:\\\\Users\\\\Levy_\\\\Downloads\\\\v1\\\\index.html\")",
+      "Bash(sed -i 's/MoneyMind/LearnToEarn/g' \"c:\\\\Users\\\\Levy_\\\\Downloads\\\\v1\\\\app.js\")",
+      "Bash(sed -i 's/LearnToEarn/MoneyMind/g' \"c:\\\\Users\\\\Levy_\\\\Downloads\\\\v1\\\\index.html\")",
+      "Bash(sed -i 's/LearnToEarn/MoneyMind/g' \"c:\\\\Users\\\\Levy_\\\\Downloads\\\\v1\\\\app.js\")",
+      "WebFetch(domain:app.qa.tradequests.com)",
+      "Bash(git --version)",
+      "Bash(where git:*)"
+    ]
+  }
+}

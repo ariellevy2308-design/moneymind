@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoneyMind — Financial Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <img src="logo.png" alt="MoneyMind" class="loading-logo">
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+  <div class="loading-text">MoneyMind</div>
+</div>
+
+<!-- CUSTOM CURSOR -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- PARTICLES -->
+<canvas id="particles-canvas"></canvas>
+
+<div class="noise"></div>
+
+<nav>
+  <!-- Hamburger (mobile only) -->
+  <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">☰</button>
+  <!-- Left: auth/user controls -->
+  <div class="nav-left" id="nav-left">
+    <button class="nav-btn" id="nav-auth-btn" onclick="openAuthModal()">Login / Sign Up</button>
+    <button class="nav-logout-btn" id="nav-logout-btn" onclick="handleLogout()" style="display:none">Logout</button>
+    <button class="nav-icon-btn" onclick="openLeaderboard()" id="nav-lb-btn" style="display:none" title="Leaderboard">🏆</button>
+    <button class="nav-icon-btn" onclick="openFriends()" id="friend-bell" style="display:none" title="Friends">👥</button>
+    <button class="nav-icon-btn bp-nav-btn" onclick="openBattlePass()" id="nav-bp-btn" style="display:none" title="Battle Pass">🎖️</button>
+    <button class="nav-icon-btn" onclick="openMissions()" id="nav-missions-btn" style="display:none" title="Daily Missions">📋</button>
+    <button class="nav-icon-btn gm-nav-btn" onclick="openFindGame()" id="nav-game-btn" style="display:none" title="Find Match">⚔️</button>
+  </div>
+  <!-- Center: logo + nav links -->
+  <div class="nav-center">
+    <div class="nav-logo"><img src="logo.png" alt="MoneyMind Logo" class="nav-logo-img"> <span data-i18n="nav_logo">MoneyMind</span></div>
+    <div class="nav-links">
+      <a href="#" onclick="showSection('stocks')" id="nav-stocks" data-i18n="nav_stocks">📈 Stocks</a>
+      <a href="#" onclick="showSection('drop')" id="nav-drop" data-i18n="nav_drop">🛒 Dropshipping</a>
+      <a href="#" onclick="showSection('calculator')" id="nav-calc" data-i18n="nav_calc">💰 Calculator</a>
+      <a href="#" onclick="showSection('quiz')" id="nav-quiz" data-i18n="nav_quiz">🧠 Quiz</a>
+      <a href="#" onclick="showSection('games')" id="nav-games" data-i18n="nav_games">🎮 Games</a>
+    </div>
+  </div>
+  <!-- Right: theme + language -->
+  <div class="nav-right">
+    <button class="admin-nav-pill" id="admin-nav-btn" onclick="openAdminPanel()" style="display:none">⚙️ Admin</button>
+    <button class="theme-toggle-btn" id="music-nav-btn" onclick="toggleMusic()" title="Background Music">🎵</button>
+    <button class="theme-toggle-btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
+    <button class="theme-toggle-btn" id="cursor-toggle-btn" onclick="toggleCursor()" title="Toggle cursor style">🖱️</button>
+    <div class="lang-picker">
+      <button class="lang-btn" id="lang-btn" onclick="toggleLangMenu()">🌐 EN</button>
+      <div class="lang-menu" id="lang-menu" style="display:none">
+        <button onclick="setLanguage('en')">🇺🇸 English</button>
+        <button onclick="setLanguage('he')">🇮🇱 עברית</button>
+        <button onclick="setLanguage('es')">🇪🇸 Español</button>
+        <button onclick="setLanguage('fr')">🇫🇷 Français</button>
+        <button onclick="setLanguage('ar')">🇸🇦 العربية</button>
+        <button onclick="setLanguage('ru')">🇷🇺 Русский</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Right Drawer -->
+<div id="mobile-drawer" class="mobile-drawer">
+  <div class="mobile-drawer-inner">
+    <button class="mobile-drawer-close" onclick="toggleMobileNav()">✕</button>
+    <div id="mobile-nav-links" class="mobile-nav-links"></div>
+    <div id="mobile-nav-actions" class="mobile-nav-actions"></div>
+  </div>
+</div>
+<div id="mobile-drawer-overlay" class="mobile-drawer-overlay" onclick="toggleMobileNav()"></div>
+
+<header>
+  <div class="header-content">
+    <img src="logo.png" alt="MoneyMind" class="hero-logo">
+    <div class="tag" data-i18n="header_tag">The Leading Financial Academy for the Next Generation</div>
+    <h1><span data-i18n="header_h1_1">Learn. Trade.</span><br><span class="accent" data-i18n="header_h1_2">Succeed Financially.</span></h1>
+    <p class="subtitle" data-i18n="header_subtitle">Professional courses in stocks & dropshipping — from zero to advanced, with live simulators</p>
+    <div class="header-stats">
+      <div class="stat"><span class="stat-num">26</span><span class="stat-lbl" data-i18n="stat_lessons">Professional Lessons</span></div>
+      <div class="stat"><span class="stat-num">50</span><span class="stat-lbl" data-i18n="stat_stocks">Stocks in Simulator</span></div>
+      <div class="stat"><span class="stat-num">∞</span><span class="stat-lbl" data-i18n="stat_potential">Potential</span></div>
+    </div>
+  </div>
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <span class="tick up">AAPL $254 ▲2.1%</span>
+      <span class="tick down">NVDA $182 ▼0.8%</span>
+      <span class="tick up">GOOGL $165 ▲1.3%</span>
+      <span class="tick up">MSFT $415 ▲0.5%</span>
+      <span class="tick down">TSLA $178 ▼1.2%</span>
+      <span class="tick up">RBLX $42 ▲3.1%</span>
+      <span class="tick up">AAPL $254 ▲2.1%</span>
+      <span class="tick down">NVDA $182 ▼0.8%</span>
+      <span class="tick up">GOOGL $165 ▲1.3%</span>
+    </div>
+  </div>
+</header>
+
+
+<!-- ONBOARDING -->
+<div id="onboarding-overlay" style="display:none">
+  <div class="onboarding-box">
+    <div class="onboarding-step" id="ob-step-0">
+      <div class="ob-emoji">👋</div>
+      <h3>Welcome to MoneyMind!</h3>
+      <p>Let me show you around in 4 quick steps.</p>
+    </div>
+    <div class="onboarding-step" id="ob-step-1" style="display:none">
+      <div class="ob-emoji">📈</div>
+      <h3>Courses</h3>
+      <p>Choose Stocks or Dropshipping from the nav to start learning professional lessons.</p>
+    </div>
+    <div class="onboarding-step" id="ob-step-2" style="display:none">
+      <div class="ob-emoji">🏆</div>
+      <h3>XP & Badges</h3>
+      <p>Earn XP by opening lessons and answering quizzes. Collect badges and climb the leaderboard!</p>
+    </div>
+    <div class="onboarding-step" id="ob-step-3" style="display:none">
+      <div class="ob-emoji">📋</div>
+      <h3>Daily Missions</h3>
+      <p>Complete daily missions to earn bonus XP! New missions every day — tap 📋 in the nav to see them.</p>
+    </div>
+    <div class="ob-dots">
+      <span class="ob-dot active" id="od-0"></span>
+      <span class="ob-dot" id="od-1"></span>
+      <span class="ob-dot" id="od-2"></span>
+      <span class="ob-dot" id="od-3"></span>
+    </div>
+    <div class="ob-btns">
+      <button class="ob-skip" onclick="closeOnboarding()">Skip</button>
+      <button class="ob-next" id="ob-next-btn" onclick="nextOnboarding()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- STOCKS SECTION -->
+<section id="section-stocks" style="display:none">
+  <div class="section-header">
+    <h2 data-i18n="stocks_title">📈 Stocks Course</h2>
+    <p data-i18n="stocks_desc">From the basics to advanced analysis — everything you need to invest smart</p>
+  </div>
+  <div class="lessons-grid" id="stocks-grid"></div>
+</section>
+
+<!-- DROPSHIPPING SECTION -->
+<section id="section-drop" style="display:none">
+  <div class="section-header">
+    <h2 data-i18n="drop_title">🛒 Dropshipping Course</h2>
+    <p data-i18n="drop_desc">Build a profitable online business — from product selection to full automation</p>
+  </div>
+  <div class="lessons-grid" id="drop-grid"></div>
+</section>
+
+<!-- CALCULATOR SECTION -->
+<section id="section-calculator" style="display:none">
+  <div class="section-header">
+    <h2 data-i18n="calc_title">💰 Wealth Growth Calculator</h2>
+    <p data-i18n="calc_desc">Enter your numbers and discover where your money will be in 5, 10, 20 years</p>
+  </div>
+  <div class="calc-card">
+    <div class="calc-inputs">
+      <div class="input-group">
+        <label data-i18n="calc_start">Initial Amount</label>
+        <div class="input-row">
+          <input type="range" id="c-start" min="1000" max="20000" step="500" value="3000" oninput="updateCalc()">
+          <span id="c-start-out">3,000₪</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label data-i18n="calc_yearly">Annual Deposit</label>
+        <div class="input-row">
+          <input type="range" id="c-yearly" min="0" max="10000" step="500" value="1000" oninput="updateCalc()">
+          <span id="c-yearly-out">1,000₪</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label data-i18n="calc_rate">Annual Return</label>
+        <div class="input-row">
+          <input type="range" id="c-rate" min="4" max="15" step="1" value="10" oninput="updateCalc()">
+          <span id="c-rate-out">10%</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label data-i18n="calc_years">Number of Years</label>
+        <div class="input-row">
+          <input type="range" id="c-years" min="1" max="30" step="1" value="7" oninput="updateCalc()">
+          <span id="c-years-out">7 years</span>
+        </div>
+      </div>
+    </div>
+    <div class="calc-results">
+      <div class="result-big" id="c-total">0₪</div>
+      <div class="result-label" data-i18n="calc_total">Total at End</div>
+      <div class="result-row"><span data-i18n="calc_invested">Money Invested</span><span id="c-invested">0₪</span></div>
+      <div class="result-row green"><span data-i18n="calc_profit">Market Profit</span><span id="c-profit">0₪</span></div>
+      <div class="result-row"><span data-i18n="calc_mult">Growth Multiplier</span><span id="c-mult">0x</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ SECTION -->
+<section id="section-quiz" style="display:none">
+  <div class="section-header">
+    <h2 data-i18n="quiz_title">🧠 Knowledge Test</h2>
+    <p data-i18n="quiz_desc">Test yourself — how much did you absorb? Get a score and know what to review</p>
+  </div>
+  <div class="quiz-card">
+    <div id="quiz-container"></div>
+  </div>
+</section>
+
+<!-- FULL LESSON PAGE -->
+<div id="lesson-page" style="display:none">
+  <div class="lp-topbar">
+    <button class="lp-back" onclick="closeLessonPage()" data-i18n="lp_back">← Back to Lessons</button>
+    <div class="lp-progress" id="lp-progress"></div>
+  </div>
+  <div class="lp-body" id="lp-body" dir="ltr"></div>
+</div>
+
+<!-- GAMES SECTION -->
+<section id="section-games" style="display:none">
+  <div class="section-header">
+    <h2 data-i18n="games_title">🎮 Live Simulators</h2>
+    <p data-i18n="games_desc">Practice what you learned with virtual money — real stock market and dropshipping business with no risk</p>
+  </div>
+  <div class="games-tabs-row">
+    <button class="game-tab-btn active" id="gtab-stocks" onclick="switchGameTab('stocks')" data-i18n="game_tab_stocks">📈 Stock Market</button>
+    <button class="game-tab-btn" id="gtab-drop" onclick="switchGameTab('drop')" data-i18n="game_tab_drop">🛒 Dropshipping</button>
+  </div>
+
+  <!-- STOCK GAME -->
+  <div id="game-stocks-panel">
+    <div class="sg-header">
+      <div class="sg-stat-card"><div class="sg-stat-val" id="sg-balance">$10,000</div><div class="sg-stat-lbl" data-i18n="sg_cash">Cash</div></div>
+      <div class="sg-stat-card"><div class="sg-stat-val" id="sg-portfolio-val">$10,000</div><div class="sg-stat-lbl" data-i18n="sg_portfolio">Portfolio Value</div></div>
+      <div class="sg-stat-card"><div class="sg-stat-val" id="sg-pnl">$0 (0%)</div><div class="sg-stat-lbl" data-i18n="sg_pnl">Profit/Loss</div></div>
+      <button class="sg-reset-btn" onclick="resetStockGame()" data-i18n="sg_reset">🔄 Reset</button>
+    </div>
+    <div class="sg-news-bar" id="sg-news" data-i18n="sg_news_default">📡 Market open — tracking news...</div>
+    <div class="sg-layout">
+      <div>
+        <div class="sg-filter-row">
+          <input type="text" id="sg-search" data-i18n-ph="sg_search_placeholder" placeholder="🔍 Search stock..." oninput="renderStocksList()" class="sg-search">
+          <select id="sg-sector" onchange="renderStocksList()" class="sg-select">
+            <option value="" data-i18n="sg_all_sectors">All Sectors</option>
+            <option>Technology</option><option>AI</option><option>Finance</option><option>Banking</option>
+            <option>Healthcare</option><option>Retail</option><option>Food & Beverage</option><option>Restaurants</option>
+            <option>Energy</option><option>Entertainment</option><option>Gaming</option><option>Transportation</option>
+            <option>Travel & Tourism</option><option>Fashion</option><option>Crypto</option><option>Electric Vehicles</option>
+            <option>Investments</option><option>Meme Stocks</option>
+          </select>
+        </div>
+        <div class="sg-stocks-list" id="sg-stocks-list"></div>
+      </div>
+      <div class="sg-portfolio-panel">
+        <div class="sg-panel-title" data-i18n="sg_my_portfolio">💼 My Portfolio</div>
+        <div id="sg-holdings"><div class="sg-empty" data-i18n="sg_no_stocks">No stocks yet. Choose a stock and click Buy!</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DROP GAME -->
+  <div id="game-drop-panel" style="display:none">
+    <div class="sg-header">
+      <div class="sg-stat-card"><div class="sg-stat-val" id="dg-day">Day 1</div><div class="sg-stat-lbl" data-i18n="dg_day">Business Day</div></div>
+      <div class="sg-stat-card"><div class="sg-stat-val" id="dg-balance">$5,000</div><div class="sg-stat-lbl" data-i18n="dg_cash">Cash</div></div>
+      <div class="sg-stat-card"><div class="sg-stat-val" id="dg-profit">$0</div><div class="sg-stat-lbl" data-i18n="dg_profit">Total Profit</div></div>
+      <div class="sg-stat-card"><div class="sg-stat-val" id="dg-sales">0</div><div class="sg-stat-lbl" data-i18n="dg_sales">Today's Sales</div></div>
+      <button class="sg-reset-btn" onclick="resetDropGame()" data-i18n="sg_reset">🔄 Reset</button>
+    </div>
+    <div class="dg-layout">
+      <div>
+        <div class="sg-panel-title" style="margin-bottom:1rem;" data-i18n="dg_products_title">🛍️ My Products — Set price and ad budget</div>
+        <div class="dg-products-list" id="dg-products-list"></div>
+      </div>
+      <div class="dg-feed-panel">
+        <div class="sg-panel-title" data-i18n="dg_feed_title">📊 Live Activity</div>
+        <div id="dg-feed"><div class="dg-feed-item event" data-i18n="dg_open">🚀 Store opened! Customers starting to browse...</div></div>
+        <div class="dg-tip" id="dg-tip"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Auth Modal -->
+<div class="modal-overlay" id="auth-modal" onclick="closeAuthModal(event)">
+  <div class="modal auth-modal-content">
+    <button class="modal-close" onclick="closeAuthModal()">✕</button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')" data-i18n="auth_login_tab">Login</button>
+      <button class="auth-tab" id="tab-register" onclick="switchTab('register')" data-i18n="auth_register_tab">Register</button>
+    </div>
+    <div id="form-login">
+      <h2 data-i18n="auth_login_title">Welcome Back 👋</h2>
+      <p class="auth-subtitle" data-i18n="auth_login_subtitle">Sign in to your account</p>
+      <div class="form-group">
+        <label data-i18n="label_email">Email</label>
+        <input type="email" id="login-email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label data-i18n="label_password">Password</label>
+        <input type="password" id="login-password" placeholder="••••••••">
+      </div>
+      <div class="remember-row">
+        <label class="remember-label">
+          <input type="checkbox" id="remember-me" checked> Remember me
+        </label>
+      </div>
+      <button class="btn-primary" onclick="handleLogin()" data-i18n="btn_login">Sign In</button>
+    </div>
+    <div id="form-register" style="display:none">
+      <h2 data-i18n="auth_register_title">Join Now 🚀</h2>
+      <p class="auth-subtitle" data-i18n="auth_register_subtitle">Join MoneyMind — Full access to all courses</p>
+      <div class="form-group">
+        <label data-i18n="label_fullname">Full Name</label>
+        <input type="text" id="reg-name" placeholder="John Smith">
+      </div>
+      <div class="form-group">
+        <label data-i18n="label_email">Email</label>
+        <input type="email" id="reg-email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label data-i18n="label_password">Password</label>
+        <input type="password" id="reg-password" placeholder="••••••••">
+      </div>
+      <button class="btn-primary" onclick="handleRegister()" data-i18n="btn_register">Continue to Payment →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal-overlay" id="payment-modal" onclick="closePaymentModal(event)">
+  <div class="modal payment-modal-content">
+    <button class="modal-close" onclick="closePaymentModal()">✕</button>
+    <div class="payment-header">
+      <div class="payment-icon">💳</div>
+      <h2 data-i18n="pay_title">Secure Payment</h2>
+      <p class="auth-subtitle" data-i18n="pay_subtitle">Full access to all MoneyMind courses</p>
+    </div>
+    <div class="currency-picker">
+      <button class="pay-opt-btn" data-id="usd" onclick="selectCurrency('usd')">🇺🇸 $10</button>
+      <button class="pay-opt-btn" data-id="ils" onclick="selectCurrency('ils')">🇮🇱 ₪37</button>
+      <button class="pay-opt-btn" data-id="eur" onclick="selectCurrency('eur')">🇪🇺 €9</button>
+      <button class="pay-opt-btn" data-id="rub" onclick="selectCurrency('rub')">🇷🇺 ₽900</button>
+    </div>
+    <div class="price-badge" id="price-badge">$10</div>
+    <div class="payment-features">
+      <div class="feature-item" data-i18n="pay_feature1">✅ Full access to all lessons</div>
+      <div class="feature-item" data-i18n="pay_feature2">✅ Advanced investment calculator</div>
+      <div class="feature-item" data-i18n="pay_feature3">✅ Quiz & knowledge tests</div>
+      <div class="feature-item" data-i18n="pay_feature4">✅ Future updates free</div>
+    </div>
+    <div class="divider"></div>
+    <div class="form-group">
+      <label data-i18n="label_card">Card Number</label>
+      <div class="card-input-wrapper">
+        <input type="text" id="card-number" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this)">
+        <span class="card-icon">💳</span>
+      </div>
+    </div>
+    <div class="payment-row">
+      <div class="form-group">
+        <label data-i18n="label_expiry">Expiry</label>
+        <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)">
+      </div>
+      <div class="form-group">
+        <label data-i18n="label_cvv">CVV</label>
+        <input type="text" id="card-cvv" placeholder="123" maxlength="3">
+      </div>
+    </div>
+    <div class="form-group">
+      <label data-i18n="label_cardname">Name on Card</label>
+      <input type="text" id="card-name" placeholder="John Smith">
+    </div>
+    <button class="btn-primary btn-pay" onclick="handlePayment()">
+      <span data-i18n="btn_pay">Pay 40₪ Securely</span>
+      <span>🔒</span>
+    </button>
+    <p class="secure-note" data-i18n="secure_note">🔒 Encrypted & Secure Payment</p>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-overlay" id="success-modal">
+  <div class="modal success-modal-content">
+    <div class="success-icon">🎉</div>
+    <h2 data-i18n="success_title">Welcome to MoneyMind! 🚀</h2>
+    <p class="auth-subtitle" data-i18n="success_subtitle">Payment received successfully</p>
+    <div class="email-sent-box">
+      <div class="email-icon">📧</div>
+      <div>
+        <div class="email-sent-title" data-i18n="email_sent_title">Access code sent to email</div>
+        <div class="email-sent-sub" id="success-email">your@email.com</div>
+      </div>
+    </div>
+    <div class="access-code-box">
+      <div class="access-code-label" data-i18n="access_code_label">Your Access Code</div>
+      <div class="access-code" id="access-code">KB-XXXX-XXXX</div>
+    </div>
+    <button class="btn-primary" onclick="closeSuccessModal()" data-i18n="btn_start">Start Learning 🚀</button>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeLesson()">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="logo.png" alt="MoneyMind" class="footer-logo">
+      <span class="footer-name">MoneyMind</span>
+    </div>
+    <p class="footer-tagline" data-i18n="footer_tagline">The Leading Financial Academy for the Next Generation</p>
+    <p class="footer-copy">© 2026 MoneyMind. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- no user chatbot -->
+
+<!-- ADMIN PANEL placeholder (button is in nav) -->
+<div id="admin-panel" style="display:none"></div>
+
+<div id="admin-panel-modal" onclick="if(event.target===this)closeAdminPanel()">
+  <div class="admin-panel-content">
+    <div class="admin-panel-sidebar">
+      <div class="admin-panel-logo">⚙️ Admin Panel</div>
+      <div class="admin-panel-user">👤 levy_ariel@outlook.com</div>
+      <div class="admin-nav-links">
+        <button class="admin-nav-btn active" onclick="switchAdminTab('chat',this)">💬 AI Chat</button>
+        <button class="admin-nav-btn" onclick="switchAdminTab('users',this)">👥 Users</button>
+        <button class="admin-nav-btn" onclick="switchAdminTab('notify',this)">📢 Notify</button>
+        <button class="admin-nav-btn" onclick="switchAdminTab('stats',this)">📊 Stats</button>
+        <button class="admin-nav-btn" onclick="openMobilePreview()">📱 Mobile</button>
+      </div>
+      <div class="admin-api-section">
+        <div style="font-size:0.7rem;color:#888;margin-bottom:0.4rem">🔑 Gemini API Key</div>
+        <input type="password" id="gemini-key-input" placeholder="Paste key here..." style="width:100%;background:#0d0d1a;border:1px solid #333;color:#fff;padding:6px 8px;border-radius:6px;font-size:0.75rem;box-sizing:border-box" oninput="saveGeminiKey(this.value)">
+        <a href="https://aistudio.google.com/apikey" target="_blank" style="display:block;margin-top:0.4rem;color:#f39c12;font-size:0.7rem;text-align:center">Get free Gemini key ↗</a>
+      </div>
+      <button class="admin-close-btn" onclick="closeAdminPanel()">✕ Close</button>
+      <button class="admin-close-btn" style="margin-top:0.4rem;background:#1e1e2e;color:#a78bfa;border-color:#333" onclick="localStorage.removeItem('mm_onboarded');closeAdminPanel();startOnboarding()">🎓 Reset Onboarding</button>
+    </div>
+    <div class="admin-panel-main">
+      <div id="admin-tab-chat" class="admin-tab active">
+        <div class="admin-chat-header">
+          <span>🤖 AI Developer Assistant</span>
+          <span style="font-size:0.75rem;color:#888">Powered by Gemini 1.5 Flash</span>
+        </div>
+        <div class="admin-chat-messages" id="admin-chat-messages"></div>
+        <div class="admin-chat-input-area">
+          <textarea id="admin-chat-input" placeholder="Ask me to fix a bug, add a feature, explain code..." rows="3" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAdminChat();}"></textarea>
+          <button class="admin-send-btn" onclick="sendAdminChat()">Send ➤</button>
+        </div>
+        <div style="text-align:center;font-size:0.65rem;color:#555;padding:0.3rem">Press Enter to send • Shift+Enter for new line</div>
+      </div>
+      <div id="admin-tab-users" class="admin-tab" style="display:none">
+        <div class="admin-users-header">
+          <span>👥 Registered Users</span>
+          <span id="admin-user-count" style="font-size:0.8rem;color:#888"></span>
+        </div>
+        <!-- Create user form -->
+        <div class="admin-create-user-form">
+          <input id="cu-name" type="text" placeholder="Full Name" class="admin-create-input">
+          <input id="cu-email" type="text" placeholder="Email" class="admin-create-input">
+          <input id="cu-pass" type="password" placeholder="Password" class="admin-create-input">
+          <button class="admin-create-btn" onclick="adminCreateUser()">➕ Create</button>
+        </div>
+        <div id="admin-users-list" class="admin-users-list"></div>
+      </div>
+      <div id="admin-tab-notify" class="admin-tab" style="display:none">
+        <div class="admin-users-header">
+          <span>📢 Notifications</span>
+          <span id="notif-count" style="font-size:0.8rem;color:#888"></span>
+        </div>
+        <div style="padding:1rem;display:flex;flex-direction:column;gap:0.75rem;border-bottom:1px solid #1e1e2e">
+          <textarea id="notif-input" placeholder="Write your notification... e.g. 🎉 New update!" rows="3" style="background:#131325;border:1px solid #2a2a3e;color:#fff;border-radius:10px;padding:0.75rem;font-size:0.85rem;font-family:'Heebo',sans-serif;resize:none;line-height:1.6"></textarea>
+          <button class="admin-send-btn" onclick="sendNotification()">📢 Send to All</button>
+        </div>
+        <div id="notif-list" class="admin-users-list"></div>
+      </div>
+      <div id="admin-tab-stats" class="admin-tab" style="display:none">
+        <div class="admin-users-header"><span>📊 Site Stats</span></div>
+        <div style="overflow-y:auto;flex:1;padding:1rem">
+          <div class="stats-cards" id="stats-cards"></div>
+          <div style="font-size:0.78rem;font-weight:700;color:#888;margin:1rem 0 0.5rem;text-transform:uppercase">🔥 Most Popular Lessons</div>
+          <div id="stats-lessons"></div>
+          <div style="font-size:0.78rem;font-weight:700;color:#888;margin:1rem 0 0.5rem;text-transform:uppercase">🏆 Most Active Users</div>
+          <div id="stats-users"></div>
+          <div style="font-size:0.78rem;font-weight:700;color:#888;margin:1rem 0 0.5rem;text-transform:uppercase">💬 Recent Comments</div>
+          <div id="stats-comments"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Banner -->
+<div id="notif-banner" style="display:none">
+  <span id="notif-banner-text"></span>
+  <button onclick="dismissNotification()" style="background:none;border:none;color:inherit;font-size:1.1rem;cursor:pointer;margin-left:1rem;opacity:0.7">✕</button>
+</div>
+
+<!-- Friends Modal -->
+<div class="modal-overlay" id="friends-modal" onclick="closeFriends(event)">
+  <div class="modal" style="max-width:480px">
+    <h2 style="margin-bottom:1rem;font-size:1.2rem">👥 Friends</h2>
+    <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem">
+      <input id="friend-search-input" type="text" placeholder="Search by email..." onkeydown="if(event.key==='Enter')sendFriendRequest()"
+        style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.5rem 0.75rem;border-radius:8px;font-size:0.85rem;font-family:'Heebo',sans-serif">
+      <button class="admin-send-btn" onclick="sendFriendRequest()">Add</button>
+    </div>
+    <div id="friend-msg" style="font-size:0.8rem;height:1.2rem;margin-bottom:0.5rem;transition:opacity 0.3s"></div>
+    <div id="friends-requests" style="margin-bottom:0.75rem"></div>
+    <div id="friends-list"></div>
+    <div id="friends-sent" style="margin-top:0.75rem"></div>
+    <button class="nav-btn" onclick="closeFriends()" style="margin-top:1.25rem;width:100%">Close</button>
+  </div>
+</div>
+
+<!-- XP Toast -->
+<div id="xp-toast" style="position:fixed;bottom:2rem;right:2rem;background:linear-gradient(135deg,#f39c12,#e67e22);color:#fff;padding:0.5rem 1.1rem;border-radius:20px;font-weight:700;font-size:0.85rem;z-index:2000;opacity:0;transform:translateY(10px);transition:all 0.3s;pointer-events:none"></div>
+
+<!-- Badge Toast -->
+<div id="badge-toast" style="position:fixed;bottom:5rem;right:2rem;background:#1a1a2e;border:1px solid #f39c12;color:#fff;padding:0.75rem 1.1rem;border-radius:14px;font-size:0.85rem;z-index:2000;opacity:0;transform:translateY(20px);transition:all 0.3s;pointer-events:none;display:flex;align-items:center;gap:0.75rem;min-width:220px"></div>
+
+<!-- Leaderboard Modal -->
+<div class="modal-overlay" id="leaderboard-modal" onclick="if(event.target===this)closeLeaderboard()">
+  <div class="modal" style="max-width:520px">
+    <h2 style="margin-bottom:1.25rem;font-size:1.3rem">🏆 Leaderboard</h2>
+    <div style="display:grid;grid-template-columns:2rem 1fr auto auto auto;gap:0.5rem;font-size:0.72rem;color:var(--muted);padding:0 0.25rem 0.5rem;border-bottom:1px solid var(--border)">
+      <span>#</span><span>Name</span><span>XP</span><span>Streak</span><span>Badges</span>
+    </div>
+    <div id="leaderboard-list" style="display:flex;flex-direction:column;gap:0.4rem;margin-top:0.75rem;max-height:340px;overflow-y:auto"></div>
+    <button class="nav-btn" onclick="closeLeaderboard()" style="margin-top:1.25rem;width:100%">Close</button>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<!-- FIND GAME MODAL -->
+<div class="modal-overlay" id="game-modal" onclick="closeGameModal(event)">
+  <div class="modal game-modal-inner">
+
+    <!-- SCREEN 1: Lobby -->
+    <div id="gm-lobby">
+      <div class="gm-title">⚔️ Find a Match</div>
+      <div class="gm-section-label">Game Mode</div>
+      <div class="gm-mode-row">
+        <button class="gm-mode-btn active" id="gm-mode-stocks" onclick="selectGameMode('stocks',this)">📈 Stocks</button>
+        <button class="gm-mode-btn" id="gm-mode-drop" onclick="selectGameMode('drop',this)">🛒 Dropshipping</button>
+      </div>
+      <div class="gm-section-label">Team Size</div>
+      <div class="gm-size-row">
+        <button class="gm-size-btn active" id="gm-size-1" onclick="selectTeamSize(1,this)">1v1</button>
+        <button class="gm-size-btn" id="gm-size-2" onclick="selectTeamSize(2,this)">2v2</button>
+        <button class="gm-size-btn" id="gm-size-3" onclick="selectTeamSize(3,this)">3v3</button>
+        <button class="gm-size-btn" id="gm-size-4" onclick="selectTeamSize(4,this)">4v4</button>
+        <button class="gm-size-btn" id="gm-size-5" onclick="selectTeamSize(5,this)">5v5</button>
+      </div>
+      <button class="gm-find-btn" onclick="startSearching()">🔍 Find Game</button>
+      <button class="gm-cancel-small" onclick="closeGameModal()">Cancel</button>
+    </div>
+
+    <!-- SCREEN 2: Searching -->
+    <div id="gm-searching" style="display:none">
+      <div class="gm-search-anim">🔍</div>
+      <div class="gm-title">Searching for players...</div>
+      <div id="gm-search-status" class="gm-search-status">0 / <span id="gm-need-players">2</span> players found</div>
+      <div class="gm-bot-warn">If no players found within <span id="gm-bot-timer">60</span>s — filling with bots</div>
+      <button class="gm-cancel-small" onclick="cancelSearch()">Cancel</button>
+    </div>
+
+    <!-- SCREEN 3: Match -->
+    <div id="gm-match" style="display:none">
+      <div class="gm-match-header">
+        <div id="gm-match-mode-label" class="gm-match-mode"></div>
+        <div class="gm-match-timer-wrap"><div id="gm-match-timer" class="gm-match-timer">5:00</div><div style="font-size:0.65rem;color:#888">left</div></div>
+        <div id="gm-match-size-label" class="gm-match-mode"></div>
+        <button class="gm-leave-btn" onclick="leaveMatch()">🚪 Leave</button>
+      </div>
+      <div class="gm-teams-wrap">
+        <div class="gm-team" id="gm-my-team">
+          <div class="gm-team-label my-label">YOUR TEAM</div>
+          <div id="gm-my-players"></div>
+          <div class="gm-team-total">Total: <span id="gm-my-total">0</span></div>
+        </div>
+        <div class="gm-vs">VS</div>
+        <div class="gm-team" id="gm-enemy-team">
+          <div class="gm-team-label enemy-label">ENEMY TEAM</div>
+          <div id="gm-enemy-players"></div>
+          <div class="gm-team-total">Total: <span id="gm-enemy-total">0</span></div>
+        </div>
+      </div>
+      <!-- Embedded Match Simulator -->
+      <div class="msim-wrap">
+        <div id="msim-header" class="msim-header"></div>
+        <input id="msim-search" class="msim-search" type="text" placeholder="🔍 Search stock..." oninput="renderMatchSim()">
+        <div id="msim-list" class="msim-list"></div>
+      </div>
+      <!-- Team Chat -->
+      <div class="gm-chat-wrap">
+        <div id="gm-chat-messages" class="gm-chat-messages"></div>
+        <div class="gm-chat-input-row">
+          <input id="gm-chat-input" type="text" placeholder="Team chat..." maxlength="80" onkeydown="if(event.key==='Enter')sendMatchChat()">
+          <button onclick="sendMatchChat()">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 4: Results -->
+    <div id="gm-results" style="display:none">
+      <div id="gm-result-banner" class="gm-result-banner"></div>
+      <div class="gm-result-scores">
+        <div class="gm-result-team">
+          <div class="gm-team-label my-label">YOUR TEAM</div>
+          <div id="gm-result-my-score" class="gm-result-score"></div>
+        </div>
+        <div class="gm-vs">VS</div>
+        <div class="gm-result-team">
+          <div class="gm-team-label enemy-label">ENEMY TEAM</div>
+          <div id="gm-result-enemy-score" class="gm-result-score"></div>
+        </div>
+      </div>
+      <div id="gm-result-xp" class="gm-result-xp"></div>
+      <div style="display:flex;gap:0.75rem;justify-content:center;margin-top:1.25rem">
+        <button class="gm-find-btn" onclick="rematch()">▶ Play Again</button>
+        <button class="gm-cancel-small" onclick="closeGameModal()">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BP PAYMENT MODAL -->
+<div class="modal-overlay" id="bp-payment-modal" onclick="closeBPPayment(event)">
+  <div class="modal" style="max-width:380px">
+    <div style="text-align:center;margin-bottom:1.25rem">
+      <div style="font-size:2rem">⭐</div>
+      <div style="font-size:1.2rem;font-weight:800;margin:0.4rem 0">Battle Pass Plus</div>
+      <div style="color:#888;font-size:0.85rem">Unlock all Plus skins + 200 XP bonus</div>
+      <div style="font-size:1.6rem;font-weight:900;color:#a78bfa;margin:0.75rem 0">₪20 <span style="font-size:0.8rem;color:#888;font-weight:400">one-time</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0.65rem">
+      <input id="bpp-name" type="text" placeholder="Name on card" class="auth-input">
+      <input id="bpp-card" type="text" placeholder="Card number" maxlength="19" class="auth-input"
+        oninput="this.value=this.value.replace(/[^\d]/g,'').replace(/(.{4})/g,'$1 ').trim()">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.65rem">
+        <input id="bpp-expiry" type="text" placeholder="MM/YY" maxlength="5" class="auth-input"
+          oninput="this.value=this.value.replace(/[^\d\/]/g,'').replace(/^(\d{2})(\d)/,'$1/$2')">
+        <input id="bpp-cvv" type="text" placeholder="CVV" maxlength="3" class="auth-input">
+      </div>
+      <div id="bpp-error" style="color:#e74c3c;font-size:0.78rem;text-align:center;min-height:1rem"></div>
+      <button id="bpp-pay-btn" onclick="confirmBPPayment()" class="bpp-pay-btn">💳 Pay ₪20</button>
+      <button onclick="document.getElementById('bp-payment-modal').classList.remove('open')"
+        style="background:none;border:none;color:#888;font-size:0.8rem;cursor:pointer;padding:0.25rem">Cancel</button>
+    </div>
+    <div style="text-align:center;color:#555;font-size:0.72rem;margin-top:0.75rem">🔒 Secure · One-time payment · No subscription</div>
+  </div>
+</div>
+
+<!-- MISSIONS MODAL -->
+<div class="modal-overlay" id="missions-modal" onclick="closeMissions(event)">
+  <div class="modal" style="max-width:420px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <div>
+        <div style="font-size:0.65rem;font-weight:800;letter-spacing:0.1em;color:#a78bfa">DAILY MISSIONS</div>
+        <div id="missions-date" style="font-size:0.78rem;color:#888"></div>
+      </div>
+      <button onclick="closeMissions()" style="background:none;border:none;color:#888;font-size:1.1rem;cursor:pointer">✕</button>
+    </div>
+    <div id="missions-list"></div>
+    <div style="margin-top:0.75rem;font-size:0.72rem;color:#555;text-align:center">Missions reset every day at midnight</div>
+  </div>
+</div>
+
+<!-- BATTLE PASS MODAL -->
+<div class="modal-overlay" id="bp-modal" onclick="closeBattlePass(event)">
+  <div class="modal bp-modal-inner" style="max-width:900px;width:95%">
+    <div class="bp-header">
+      <div>
+        <div class="bp-season-label">BATTLE PASS</div>
+        <div id="bp-season-name" class="bp-season-title"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.75rem">
+        <div class="bp-xp-pill">⚡ <span id="bp-xp-display">0 XP</span></div>
+        <span id="bp-plus-label" class="bp-plus-owned" style="display:none">⭐ PLUS</span>
+        <div id="bp-plus-btn-wrap">
+          <button class="bp-buy-plus-btn" onclick="buyBattlePassPlus()">⭐ Get Battle Pass Plus</button>
+        </div>
+        <button class="bp-close-btn" onclick="closeBattlePass()">✕</button>
+      </div>
+    </div>
+    <div class="bp-legend">
+      <span class="bp-legend-free">■ Free</span>
+      <span class="bp-legend-plus">■ Battle Pass Plus</span>
+      <span style="color:#888;font-size:0.72rem">Click an unlocked skin to equip it</span>
+    </div>
+    <div class="bp-track-wrap">
+      <div class="bp-track" id="bp-track"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="profile-modal" onclick="closeProfile(event)">
+  <div class="modal" style="max-width:480px">
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem">
+      <div id="profile-avatar-display" class="profile-avatar-big" onclick="toggleAvatarPicker()"></div>
+      <div>
+        <h2 id="profile-name" style="font-size:1.3rem;margin:0"></h2>
+        <div style="font-size:0.72rem;color:#888;margin-top:0.2rem">Click avatar to change</div>
+      </div>
+    </div>
+    <!-- Avatar picker -->
+    <div id="avatar-picker" style="display:none">
+      <div style="font-size:0.78rem;color:#888;margin-bottom:0.5rem">🎖️ Skins unlocked via Battle Pass — <span style="color:#a78bfa;cursor:pointer" onclick="closeBattlePass();closeProfile();openBattlePass()">Open Battle Pass</span></div>
+      <div class="avatar-grid" id="avatar-grid"></div>
+    </div>
+    <div style="display:flex;gap:1.5rem;margin:1rem 0;font-size:0.9rem">
+      <div><div style="color:var(--muted);font-size:0.72rem">XP</div><div id="profile-xp" style="font-weight:700;color:#f39c12"></div></div>
+      <div><div style="color:var(--muted);font-size:0.72rem">Streak</div><div id="profile-streak" style="font-weight:700;color:#e67e22"></div></div>
+      <div><div style="color:var(--muted);font-size:0.72rem">Lessons</div><div id="profile-lessons" style="font-weight:700"></div></div>
+    </div>
+    <div style="font-size:0.85rem;color:var(--muted);margin-bottom:0.75rem">Badges</div>
+    <div id="profile-badges" style="display:flex;flex-wrap:wrap;gap:0.5rem"></div>
+
+    <!-- Settings -->
+    <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1rem">
+      <div style="font-size:0.85rem;color:var(--muted);margin-bottom:0.75rem">⚙️ Settings</div>
+      <div class="settings-row">
+        <span>🔊 Sound Effects</span>
+        <button class="settings-toggle" id="sfx-toggle" onclick="toggleSFX()">ON</button>
+      </div>
+      <div class="settings-row">
+        <span>🎵 Background Music</span>
+        <button class="settings-toggle" id="music-toggle" onclick="toggleMusic()">OFF</button>
+      </div>
+      <div class="settings-row" id="music-vol-row" style="display:none">
+        <span style="font-size:0.78rem;color:var(--muted)">🔈 Volume</span>
+        <input type="range" id="music-vol" min="0" max="100" value="30" class="vol-slider" oninput="setMusicVolume(this.value)">
+      </div>
+      <div style="border-top:1px solid var(--border);margin:0.75rem 0"></div>
+      <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.5rem">🔑 Change Password</div>
+      <div class="settings-change-pw" id="change-pw-form">
+        <input type="password" id="old-pw" placeholder="Current password" class="settings-input">
+        <input type="password" id="new-pw" placeholder="New password" class="settings-input">
+        <button class="settings-save-btn" onclick="changePassword()">Save</button>
+        <div id="pw-msg" style="font-size:0.75rem;margin-top:0.25rem"></div>
+      </div>
+      <button class="delete-account-btn" onclick="deleteOwnAccount()">🗑️ Delete Account</button>
+    </div>
+
+    <button class="nav-btn" onclick="closeProfile()" style="margin-top:1.25rem;width:100%">Close</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  // Fallback — always hide loading screen after 2s regardless of app.js errors
+  setTimeout(function() {
+    var ls = document.getElementById('loading-screen');
+    if (ls) { ls.style.opacity = '0'; ls.style.visibility = 'hidden'; ls.style.pointerEvents = 'none'; }
+  }, 2000);
+</script>
+</body>
+</html>
