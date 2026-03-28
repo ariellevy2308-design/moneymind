@@ -22,7 +22,9 @@ async function readDB() {
   try {
     const { blobs } = await list({ prefix: BLOB_KEY });
     if (!blobs.length) return await initDB();
-    const res = await fetch(blobs[0].url);
+    const res = await fetch(blobs[0].url, {
+      headers: { authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` }
+    });
     return await res.json();
   } catch {
     return await initDB();
@@ -31,7 +33,7 @@ async function readDB() {
 
 async function writeDB(data) {
   await put(BLOB_KEY, JSON.stringify(data), {
-    access: 'public',
+    access: 'private',
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType: 'application/json'
