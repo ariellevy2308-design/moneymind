@@ -12,6 +12,10 @@ const BLOB_KEY = 'moneymind-db.json';
 
 app.use(cors());
 app.use(express.json());
+app.use((req, res, next) => {
+  if (!req.path.startsWith('/api')) req.url = '/api' + req.url;
+  next();
+});
 
 // ── Blob DB helpers ───────────────────────────────────────────────────────────
 async function readDB() {
