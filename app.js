@@ -995,7 +995,12 @@ function requireLogin(callback) {
   window._pendingAction = callback;
 }
 
+function closeMobileDrawer() {
+  document.getElementById('mobile-drawer')?.classList.remove('open');
+  document.getElementById('mobile-drawer-overlay')?.classList.remove('open');
+}
 function openAuthModal() {
+  closeMobileDrawer();
   document.getElementById('auth-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
   const savedEmail = localStorage.getItem('kb_saved_email');
@@ -1171,6 +1176,7 @@ function updateNavForLoggedIn() {
 }
 
 function handleLogout() {
+  closeMobileDrawer();
   isLoggedIn = false;
   currentUserEmail = '';
   currentUserName = '';
